@@ -13,6 +13,52 @@
   gap: 12px;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  font-weight: 700;
+  user-select: none;
+}
+
+.toggle input {
+  width: 18px;
+  height: 18px;
+}
+
+.segment {
+  display: inline-flex;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.segmentButton {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 10px 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.segmentButton[data-active='true'] {
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .title {
   font-size: 18px;
   font-weight: 700;
@@ -47,6 +93,10 @@
   width: 100%;
   height: auto;
   touch-action: none;
+}
+
+.svg[data-orientation='portrait'] {
+  max-height: 84vh;
 }
 
 .courtBackground {

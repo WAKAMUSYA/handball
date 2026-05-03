@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import styles from './handball-board.module.css'
 
 type Side = 'home' | 'away'
+type Orientation = 'landscape' | 'portrait'
 
 type PlayerPiece = {
   id: string
@@ -33,7 +34,8 @@ type DragState =
     }
   | null
 
-const VIEWBOX = { width: 200, height: 120 }
+const LANDSCAPE = { width: 200, height: 120 }
+const PORTRAIT = { width: 120, height: 200 }
 
 const PLAYER_RADIUS = 7.5
 const BALL_RADIUS = 5.5
@@ -44,8 +46,8 @@ function clamp(value: number, min: number, max: number) {
 
 function clampToCourt(point: { x: number; y: number }, radius: number) {
   return {
-    x: clamp(point.x, radius, VIEWBOX.width - radius),
-    y: clamp(point.y, radius, VIEWBOX.height - radius),
+    x: clamp(point.x, radius, LANDSCAPE.width - radius),
+    y: clamp(point.y, radius, LANDSCAPE.height - radius),
   }
 }
 
@@ -54,6 +56,26 @@ function getSvgPoint(svg: SVGSVGElement, clientX: number, clientY: number) {
   if (!ctm) return { x: 0, y: 0 }
   const point = new DOMPoint(clientX, clientY).matrixTransform(ctm.inverse())
   return { x: point.x, y: point.y }
+}
+
+function portraitToLandscape(p: { x: number; y: number }) {
+  // forward: (xp, yp) = (y, PORTRAIT.height - x)
+  // inverse:
+  // y = xp
+  // x = PORTRAIT.height - yp
+  return { x: PORTRAIT.height - p.y, y: p.x }
+}
+
+function landscapeToPortrait(p: { x: number; y: number }) {
+  return { x: p.y, y: PORTRAIT.height - p.x }
+}
+
+function toLandscapePoint(orientation: Orientation, p: { x: number; y: number }) {
+  return orientation === 'portrait' ? portraitToLandscape(p) : p
+}
+
+function toSvgPoint(orientation: Orientation, p: { x: number; y: number }) {
+  return orientation === 'portrait' ? landscapeToPortrait(p) : p
 }
 
 function createInitialPieces(): Piece[] {
@@ -80,14 +102,23 @@ function createInitialPieces(): Piece[] {
   return [...home, ...away, ball]
 }
 
+function createBenchPieces(): PlayerPiece[] {
+  return [
+    { id: 'home-7', kind: 'player', side: 'home', number: 7, x: 20, y: 10 },
+    { id: 'away-7', kind: 'player', side: 'away', number: 7, x: 20, y: 25 },
+  ]
+}
+
 function PieceCircle({
   piece,
   isDragging,
   onPointerDown,
+  orientation,
 }: {
   piece: Piece
   isDragging: boolean
   onPointerDown: (e: ReactPointerEvent<SVGGElement>, id: string) => void
+  orientation: Orientation
 }) {
   const radius = piece.kind === 'ball' ? BALL_RADIUS : PLAYER_RADIUS
   const fill =
@@ -97,6 +128,8 @@ function PieceCircle({
         ? '#2F6FED'
         : '#E5484D'
 
+  const svgPoint = toSvgPoint(orientation, { x: piece.x, y: piece.y })
+
   return (
     <g
       className={styles.piece}
@@ -105,11 +138,11 @@ function PieceCircle({
       role="button"
       aria-label={piece.kind === 'ball' ? 'ball' : `${piece.side}-${piece.number}`}
     >
-      <circle cx={piece.x} cy={piece.y} r={radius} fill={fill} />
+      <circle cx={svgPoint.x} cy={svgPoint.y} r={radius} fill={fill} />
       {piece.kind === 'player' ? (
         <text
-          x={piece.x}
-          y={piece.y + 0.8}
+          x={svgPoint.x}
+          y={svgPoint.y + 0.8}
           textAnchor="middle"
           dominantBaseline="middle"
           className={styles.playerNumber}
@@ -121,8 +154,9 @@ function PieceCircle({
   )
 }
 
-function CourtLines() {
-  const goalCenterY = VIEWBOX.height / 2
+function CourtLines({ orientation }: { orientation: Orientation }) {
+  const dims = orientation === 'portrait' ? PORTRAIT : LANDSCAPE
+  const goalCenterY = dims.height / 2
   const goalAreaR = 30 // 6m相当（見た目用スケール）
   const freeThrowR = 45 // 9m相当（見た目用スケール）
 
@@ -131,12 +165,12 @@ function CourtLines() {
 
   return (
     <g className={styles.courtLines}>
-      <rect x={0} y={0} width={VIEWBOX.width} height={VIEWBOX.height} className={styles.courtBorder} />
+      <rect x={0} y={0} width={dims.width} height={dims.height} className={styles.courtBorder} />
       <line
-        x1={VIEWBOX.width}
+        x1={dims.width}
         y1={0}
-        x2={VIEWBOX.width}
-        y2={VIEWBOX.height}
+        x2={dims.width}
+        y2={dims.height}
         className={styles.centerLine}
       />
 
@@ -146,10 +180,10 @@ function CourtLines() {
       <path d={freeThrowArc} className={styles.freeThrowLine} />
 
       <line
-        x1={VIEWBOX.width - 18}
+        x1={dims.width - 18}
         y1={0}
-        x2={VIEWBOX.width - 18}
-        y2={VIEWBOX.height}
+        x2={dims.width - 18}
+        y2={dims.height}
         className={styles.subLine}
       />
     </g>
@@ -159,8 +193,11 @@ function CourtLines() {
 export default function HandballBoard() {
   const svgRef = useRef<SVGSVGElement | null>(null)
   const initialPieces = useMemo(() => createInitialPieces(), [])
+  const benchPieces = useMemo(() => createBenchPieces(), [])
   const [pieces, setPieces] = useState<Piece[]>(initialPieces)
   const [drag, setDrag] = useState<DragState>(null)
+  const [orientation, setOrientation] = useState<Orientation>('landscape')
+  const [enable7th, setEnable7th] = useState(false)
 
   const piecesById = useMemo(() => {
     const map = new Map<string, Piece>()
@@ -169,9 +206,29 @@ export default function HandballBoard() {
   }, [pieces])
 
   const onReset = useCallback(() => {
-    setPieces(initialPieces)
+    setPieces(enable7th ? [...initialPieces, ...benchPieces] : initialPieces)
     setDrag(null)
-  }, [initialPieces])
+  }, [benchPieces, enable7th, initialPieces])
+
+  const onToggle7th = useCallback(
+    (nextEnabled: boolean) => {
+      setEnable7th(nextEnabled)
+      setPieces((current) => {
+        if (nextEnabled) {
+          const existing = new Set(current.map((p) => p.id))
+          const toAdd = benchPieces.filter((p) => !existing.has(p.id))
+          return [...current, ...toAdd]
+        }
+        return current.filter((p) => p.id !== 'home-7' && p.id !== 'away-7')
+      })
+      setDrag((currentDrag) => {
+        if (!currentDrag) return null
+        if (nextEnabled) return currentDrag
+        return currentDrag.id === 'home-7' || currentDrag.id === 'away-7' ? null : currentDrag
+      })
+    },
+    [benchPieces],
+  )
 
   const onPointerDown = useCallback(
     (e: ReactPointerEvent<SVGGElement>, id: string) => {
@@ -185,7 +242,8 @@ export default function HandballBoard() {
 
       ;(e.currentTarget as SVGGElement).setPointerCapture(e.pointerId)
 
-      const p = getSvgPoint(svg, e.clientX, e.clientY)
+      const pSvg = getSvgPoint(svg, e.clientX, e.clientY)
+      const p = toLandscapePoint(orientation, pSvg)
       setDrag({
         id,
         pointerId: e.pointerId,
@@ -193,7 +251,7 @@ export default function HandballBoard() {
         offsetY: p.y - piece.y,
       })
     },
-    [piecesById],
+    [piecesById, orientation],
   )
 
   const onPointerMove = useCallback(
@@ -205,7 +263,8 @@ export default function HandballBoard() {
 
       e.preventDefault()
 
-      const p = getSvgPoint(svg, e.clientX, e.clientY)
+      const pSvg = getSvgPoint(svg, e.clientX, e.clientY)
+      const p = toLandscapePoint(orientation, pSvg)
 
       setPieces((current) => {
         const next = current.map((piece) => {
@@ -220,7 +279,7 @@ export default function HandballBoard() {
         return next
       })
     },
-    [drag],
+    [drag, orientation],
   )
 
   const endDrag = useCallback((e: ReactPointerEvent<SVGSVGElement>) => {
@@ -234,16 +293,45 @@ export default function HandballBoard() {
     <div className={styles.wrap}>
       <header className={styles.header}>
         <h1 className={styles.title}>Handball Board</h1>
-        <button type="button" className={styles.resetButton} onClick={onReset}>
-          配置リセット
-        </button>
+        <div className={styles.controls}>
+          <label className={styles.toggle}>
+            <input
+              type="checkbox"
+              checked={enable7th}
+              onChange={(e) => onToggle7th(e.target.checked)}
+            />
+            7人目
+          </label>
+          <div className={styles.segment}>
+            <button
+              type="button"
+              className={styles.segmentButton}
+              data-active={orientation === 'portrait' ? 'true' : 'false'}
+              onClick={() => setOrientation('portrait')}
+            >
+              縦長
+            </button>
+            <button
+              type="button"
+              className={styles.segmentButton}
+              data-active={orientation === 'landscape' ? 'true' : 'false'}
+              onClick={() => setOrientation('landscape')}
+            >
+              横長
+            </button>
+          </div>
+          <button type="button" className={styles.resetButton} onClick={onReset}>
+            配置リセット
+          </button>
+        </div>
       </header>
 
       <div className={styles.boardCard}>
         <svg
           ref={svgRef}
           className={styles.svg}
-          viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
+          data-orientation={orientation}
+          viewBox={`0 0 ${orientation === 'portrait' ? PORTRAIT.width : LANDSCAPE.width} ${orientation === 'portrait' ? PORTRAIT.height : LANDSCAPE.height}`}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
@@ -251,11 +339,17 @@ export default function HandballBoard() {
           <rect
             x={0}
             y={0}
-            width={VIEWBOX.width}
-            height={VIEWBOX.height}
+            width={orientation === 'portrait' ? PORTRAIT.width : LANDSCAPE.width}
+            height={orientation === 'portrait' ? PORTRAIT.height : LANDSCAPE.height}
             className={styles.courtBackground}
           />
-          <CourtLines />
+          {orientation === 'portrait' ? (
+            <g transform={`translate(0 ${PORTRAIT.height}) rotate(-90)`}>
+              <CourtLines orientation="landscape" />
+            </g>
+          ) : (
+            <CourtLines orientation={orientation} />
+          )}
           <g className={styles.piecesLayer}>
             {pieces.map((piece) => (
               <PieceCircle
@@ -263,6 +357,7 @@ export default function HandballBoard() {
                 piece={piece}
                 isDragging={drag?.id === piece.id}
                 onPointerDown={onPointerDown}
+                orientation={orientation}
               />
             ))}
           </g>
@@ -270,7 +365,7 @@ export default function HandballBoard() {
       </div>
 
       <p className={styles.hint}>
-        青: 味方(1〜6) / 赤: 敵(1〜6) / 黄: ボール。ドラッグで移動できます（PC/スマホ対応）。
+        青: 味方 / 赤: 敵 / 黄: ボール。ドラッグで移動できます（PC/スマホ対応）。
       </p>
     </div>
   )
