@@ -22,7 +22,7 @@ export default function RootLayout({
             </Link>
             <nav className="hidden md:flex gap-6 text-sm font-medium">
               <Link href="/handball-board" className="hover:text-blue-200 transition">戦術ボード</Link>
-              <Link href="/hand-iq" className="hover:text-blue-200 transition">ハンドIQ講座</Link>
+              <Link href="/textbook" className="hover:text-blue-200 transition">ハンドボールの教科書</Link>
               <Link href="/glossary" className="hover:text-blue-200 transition">用語集</Link>
               <Link href="/training" className="hover:text-blue-200 transition">練習メニュー</Link>
             </nav>
@@ -31,7 +31,7 @@ export default function RootLayout({
           <div className="md:hidden overflow-x-auto bg-blue-800 text-sm whitespace-nowrap scrollbar-hide">
             <div className="flex px-4 py-2 gap-4">
               <Link href="/handball-board" className="hover:text-blue-200 transition">戦術ボード</Link>
-              <Link href="/hand-iq" className="hover:text-blue-200 transition">ハンドIQ講座</Link>
+              <Link href="/textbook" className="hover:text-blue-200 transition">ハンドボールの教科書</Link>
               <Link href="/glossary" className="hover:text-blue-200 transition">用語集</Link>
               <Link href="/training" className="hover:text-blue-200 transition">練習メニュー</Link>
             </div>

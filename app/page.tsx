@@ -11,7 +11,7 @@ export default function Home() {
           N高校ハンドボール部の共通認識を高める学習サイト
         </p>
         <p className="text-sm md:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed mt-4">
-          このサイトは、練習で使う言葉、戦術、立ち位置、判断基準を整理し、チーム全体のハンドIQを上げるための場所です。
+          このサイトは、チームの戦術、練習で使う言葉の定義、そしてハンドボールの基本セオリーを整理し、全員のハンドIQを上げるための場所です。
         </p>
       </section>
 
@@ -27,12 +27,12 @@ export default function Home() {
         </Link>
 
         {/* Card 2 */}
-        <Link href="/hand-iq" className="group block bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all duration-300">
+        <Link href="/textbook" className="group block bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all duration-300">
           <h2 className="text-xl font-bold text-slate-800 group-hover:text-primary mb-2 flex items-center gap-2">
-            <span className="text-2xl">🧠</span> ハンドIQ講座
+            <span className="text-2xl">📚</span> ハンドボールの教科書
           </h2>
           <p className="text-slate-600 text-sm">
-            良い選手が見ているポイントや、スペースの考え方などの基本理論を学びます。
+            チームの土台となる基本ルールや攻撃・守備のセオリーを確認できます。
           </p>
         </Link>
 
