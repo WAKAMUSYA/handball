@@ -3,8 +3,8 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Hand IQ Lab | N高校ハンドボール部",
-  description: "N高校ハンドボール部の共通認識を高める学習サイト",
+  title: "NT Handball",
+  description: "ハンドボールのためのサイト",
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
         <header className="bg-primary text-white shadow-md sticky top-0 z-50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
             <Link href="/" className="text-xl font-bold tracking-tight">
-              Hand IQ Lab
+              NT Handball
             </Link>
             <nav className="hidden md:flex gap-6 text-sm font-medium">
               <Link href="/handball-board" className="hover:text-blue-200 transition">戦術ボード</Link>

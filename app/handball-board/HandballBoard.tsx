@@ -27,11 +27,11 @@ type Piece = PlayerPiece | BallPiece
 
 type DragState =
   | {
-      id: string
-      pointerId: number
-      offsetX: number
-      offsetY: number
-    }
+    id: string
+    pointerId: number
+    offsetX: number
+    offsetY: number
+  }
   | null
 
 const LANDSCAPE = { width: 200, height: 120 }
@@ -240,7 +240,7 @@ export default function HandballBoard() {
       e.preventDefault()
       e.stopPropagation()
 
-      ;(e.currentTarget as SVGGElement).setPointerCapture(e.pointerId)
+        ; (e.currentTarget as SVGGElement).setPointerCapture(e.pointerId)
 
       const pSvg = getSvgPoint(svg, e.clientX, e.clientY)
       const p = toLandscapePoint(orientation, pSvg)
@@ -363,10 +363,6 @@ export default function HandballBoard() {
           </g>
         </svg>
       </div>
-
-      <p className={styles.hint}>
-        青: 味方 / 赤: 敵 / 黄: ボール。ドラッグで移動できます（PC/スマホ対応）。
-      </p>
     </div>
   )
 }

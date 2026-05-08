@@ -1,54 +1,44 @@
-import { trainingMenus } from "../../data/training";
+import Link from "next/link";
+import { trainingCategories } from "../../data/training";
 
 export const metadata = {
-  title: "練習メニュー | Hand IQ Lab",
-  description: "N高校ハンドボール部の練習メニューと意図",
+  title: "自己管理ノート（練習メニュー） | NT Handball",
+  description: "N高校ハンドボール部の自己成長とコンディショニングのためのノート",
 };
 
-export default function TrainingPage() {
-  const totalTime = trainingMenus.reduce((acc, curr) => acc + curr.timeMinutes, 0);
-
+export default function TrainingIndexPage() {
   return (
     <div className="max-w-4xl mx-auto py-8 animate-fade-in">
-      <div className="mb-8 border-b pb-4 flex justify-between items-end flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-800 flex items-center gap-3">
-            <span className="text-4xl">🏃‍♂️</span> 練習メニュー
-          </h1>
-          <p className="text-slate-600 mt-2">
-            各メニューの目的と意識すべきポイントを確認し、練習の質を高めます。
-          </p>
-        </div>
-        <div className="bg-blue-50 text-blue-800 px-4 py-2 rounded-lg font-bold shadow-sm border border-blue-100">
-          合計: 約 {totalTime} 分
-        </div>
+      <div className="mb-10 border-b pb-6">
+        <h1 className="text-3xl font-extrabold text-slate-800 flex items-center gap-3">
+          <span className="text-4xl">📓</span> 練習メニュー・自己管理ノート
+        </h1>
+        <p className="text-slate-600 mt-3 leading-relaxed">
+          毎日の練習だけでなく、自分の身体のケアやメンタルの整え方など、高校生アスリートとして自立して成長するための学習ノートです。今の自分に必要なテーマを選んで読んでみましょう。
+        </p>
       </div>
 
-      <div className="relative border-l-2 border-slate-200 ml-4 md:ml-6 space-y-8 pb-4">
-        {trainingMenus.map((menu, index) => (
-          <div key={menu.id} className="relative pl-6 md:pl-8">
-            <div className="absolute -left-[11px] top-1 bg-white border-2 border-primary w-5 h-5 rounded-full" />
-            
-            <div className="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-              <div className="flex flex-wrap justify-between items-start mb-3 gap-2">
-                <div>
-                  <span className="inline-block bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded-md mb-2">
-                    {menu.category}
-                  </span>
-                  <h2 className="text-xl font-bold text-slate-800">
-                    {menu.title}
-                  </h2>
-                </div>
-                <div className="text-primary font-bold bg-blue-50 px-3 py-1 rounded-full text-sm shrink-0">
-                  {menu.timeMinutes} min
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {trainingCategories.map((category) => (
+          <Link
+            key={category.id}
+            href={`/training/${category.id}`}
+            className="group block bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition-all duration-300"
+          >
+            <div className="flex items-start gap-4">
+              <div className="text-4xl bg-slate-50 p-3 rounded-xl group-hover:bg-blue-50 transition-colors">
+                {category.icon}
               </div>
-              
-              <p className="text-slate-600 text-sm leading-relaxed mt-2">
-                {menu.description}
-              </p>
+              <div>
+                <h2 className="text-xl font-bold text-slate-800 group-hover:text-primary mb-2">
+                  {category.title}
+                </h2>
+                <p className="text-slate-600 text-sm">
+                  {category.description}
+                </p>
+              </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

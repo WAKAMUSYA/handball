@@ -5,10 +5,10 @@ export default function Home() {
     <div className="flex flex-col gap-8 py-8 animate-fade-in">
       <section className="text-center space-y-4 mb-8">
         <h1 className="text-3xl md:text-5xl font-extrabold text-primary tracking-tight">
-          Hand IQ Lab
+          NT Handball
         </h1>
         <p className="text-lg md:text-xl font-medium text-slate-700">
-          N高校ハンドボール部の共通認識を高める学習サイト
+          ハンドボールのためのサイト
         </p>
         <p className="text-sm md:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed mt-4">
           このサイトは、チームの戦術、練習で使う言葉の定義、そしてハンドボールの基本セオリーを整理し、全員のハンドIQを上げるための場所です。

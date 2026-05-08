@@ -2,7 +2,7 @@ import Link from "next/link";
 import { textbookData } from "../../data/textbook";
 
 export const metadata = {
-  title: "ハンドボールの教科書 | Hand IQ Lab",
+  title: "ハンドボールの教科書 | NT Handball",
   description: "N高校ハンドボール部の基本セオリー",
 };
 

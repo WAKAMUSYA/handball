@@ -1,7 +1,7 @@
 import { glossary } from "../../data/glossary";
 
 export const metadata = {
-  title: "チーム用語集 | Hand IQ Lab",
+  title: "チーム用語集 | NT Handball",
   description: "N高校ハンドボール部のチーム用語と共通言語",
 };
 
